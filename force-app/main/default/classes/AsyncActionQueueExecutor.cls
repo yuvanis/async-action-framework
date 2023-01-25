@@ -30,14 +30,19 @@ public with sharing class AsyncActionQueueExecutor {
             actionIterator = actions.iterator();
         }
 
-        public void execute(QueueableContext param1) {
+        public void execute(QueueableContext queueableContext) {
             AsyncAction action = (AsyncAction) actionIterator.next();
+            Logger.info('Async Action: ' + action.getType().getName());
+            Logger.info(JSON.serializePretty(action));
             try {
+                Logger.setParentLogTransactionId(action.getParentTransactionId());
                 action.execute();
+                Logger.info('Async Action: ' + action.getType().getName() + ' executed successfully.');
             } catch (Exception e) {
-                //Log
+                Logger.error(e.getMessage());
             }
-            if(actionIterator.hasNext()) System.enqueueJob(this);
+            Logger.saveLog();
+            if (actionIterator.hasNext()) System.enqueueJob(this);
         }
     }
 }

@@ -4,5 +4,5 @@
 
 trigger AsyncActionTrigger on Async_Action__e (after insert) {
 
-    AsyncActionTriggerHandler.createListActions(Trigger.new);
+    TRGF_TriggerHandlersProvider.execute();
 }
