@@ -16,10 +16,12 @@ public with sharing class QueueService {
     }
 
     public static void enqueueJob(Queueable queueable, Integer delay) {
+        getQueueInstance();
         queueInstance.enqueueJob(queueable, delay);
     }
 
     public static Integer getAvailableQueueableJobs() {
+        getQueueInstance();
         return queueInstance.getAvailableQueueableJobs();
     }
 

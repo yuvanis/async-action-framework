@@ -23,10 +23,6 @@ public abstract class AsyncAction {
         return this;
     }
 
-    public Integer getRetryCount() {
-        return retryLimit;
-    }
-
     public AsyncAction setInterval(Integer retryIntervalMin) {
         if (retryIntervalMin < 0 || retryIntervalMin > 10) {
             throw new AsyncActionException('Invalid interval. Please enter an interval from 0 to 10.');
@@ -37,8 +33,13 @@ public abstract class AsyncAction {
     }
 
     public Integer getInterval() {
-        Long executionDeltaMin = (System.now().getTime() - lastExecutedDT.getTime()) / (1000 * 60);
-        return retryIntervalMin - executionDeltaMin.intValue();
+        if (retryIntervalMin == 0) {
+            return 0;
+        } else {
+            if (lastExecutedDT == null) lastExecutedDT = System.now();
+            Long executionDeltaMin = (System.now().getTime() - lastExecutedDT.getTime()) / (1000 * 60);
+            return retryIntervalMin - executionDeltaMin.intValue();
+        }
     }
 
     public Integer getExecutionCount() {
