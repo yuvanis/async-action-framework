@@ -90,6 +90,40 @@ private class AsyncActionExecutorTest {
         Test.startTest();
         AsyncActionExecutor.execute(failedActions);
         Test.stopTest();
-        System.assertEquals(0, failedActions.get(0).getRetryCount());
+        System.assertEquals(4, failedActions.get(0).getExecutionCount());
+    }
+
+    @IsTest
+    static void testInvalidInterval() {
+        QueueService.setMockQueue(new TestQueue());
+        String exceptionStr;
+        Test.startTest();
+        try {
+            AsyncActionExecutor.execute(new AsyncActionTestNegative().setInterval(15));
+        } catch (Exception e) {
+            exceptionStr = e.getMessage();
+        }
+        Test.stopTest();
+        System.assertEquals(exceptionStr, 'Invalid interval. Please enter an interval from 0 to 10.');
+    }
+
+    @IsTest
+    static void testQueueDefaultEnqueueJob() {
+        AsyncAction action = new AsyncActionTestPositive('Test').setInterval(1).setRetryCount(3);
+        Test.startTest();
+        new AsyncActionQueueExecutor(new List<AsyncAction>{action}).execute();
+        Test.stopTest();
+        List<Account> accounts = [SELECT Name FROM Account];
+        System.assertEquals(1, accounts.size());
+    }
+
+    @IsTest
+    static void testQueueDefaultQueueableJobs() {
+        AsyncAction action = new AsyncActionTestPositive('Test').setInterval(1).setRetryCount(3);
+        Test.startTest();
+        AsyncActionExecutor.execute(action);
+        Test.stopTest();
+        List<Account> accounts = [SELECT Name FROM Account];
+        System.assertEquals(1, accounts.size());
     }
 }
