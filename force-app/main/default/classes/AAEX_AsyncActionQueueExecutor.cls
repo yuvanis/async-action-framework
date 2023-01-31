@@ -2,38 +2,38 @@
  * Created by Yury Nistratau on 19.01.2023.
  */
 
-public with sharing class AsyncActionQueueExecutor {
+public with sharing class AAEX_AsyncActionQueueExecutor {
 
-    private List<AsyncAction> actions;
+    private List<AAEX_AsyncAction> actions;
 
-    public AsyncActionQueueExecutor() {
-        actions = new List<AsyncAction>();
+    public AAEX_AsyncActionQueueExecutor() {
+        actions = new List<AAEX_AsyncAction>();
     }
 
-    public AsyncActionQueueExecutor(List<AsyncAction> actions) {
+    public AAEX_AsyncActionQueueExecutor(List<AAEX_AsyncAction> actions) {
         this.actions = actions;
     }
 
-    public void addAction(AsyncAction action) {
+    public void addAction(AAEX_AsyncAction action) {
         actions.add(action);
     }
 
     public void execute() {
-        if (actions != null && actions.size() > 0) QueueService.enqueueJob(new AsyncActionQueue(actions), actions.get(0).getInterval());
+        if (actions != null && actions.size() > 0) AAEX_QueueService.enqueueJob(new AsyncActionQueue(actions), actions.get(0).getInterval());
     }
 
     public with sharing class AsyncActionQueue implements Queueable {
 
-        private List<AsyncAction> actions = new List<AsyncAction>();
-        private List<AsyncAction> failedActions = new List<AsyncAction>();
+        private List<AAEX_AsyncAction> actions = new List<AAEX_AsyncAction>();
+        private List<AAEX_AsyncAction> failedActions = new List<AAEX_AsyncAction>();
         private Integer currentIndex = 0;
 
-        private AsyncActionQueue(List<AsyncAction> actions) {
+        private AsyncActionQueue(List<AAEX_AsyncAction> actions) {
             this.actions = actions;
         }
 
         public void execute(QueueableContext queueableContext) {
-            AsyncAction action = actions.get(currentIndex);
+            AAEX_AsyncAction action = actions.get(currentIndex);
             Logger.info('Async Action: ' + action.getType().getName());
             Logger.info(JSON.serializePretty(action));
             try {
@@ -52,9 +52,9 @@ public with sharing class AsyncActionQueueExecutor {
             if (currentIndex < maxIndex) {
                 Logger.info('Enqueue next Async Action');
                 currentIndex++;
-                QueueService.enqueueJob(this,actions[currentIndex].getInterval());
+                AAEX_QueueService.enqueueJob(this,actions[currentIndex].getInterval());
             } else {
-                if (failedActions.size() > 0) new AsyncActionQueueExecutor(failedActions).execute();
+                if (failedActions.size() > 0) new AAEX_AsyncActionQueueExecutor(failedActions).execute();
             }
             Logger.saveLog();
         }

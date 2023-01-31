@@ -2,7 +2,7 @@
  * Created by Yury Nistratau on 27.01.2023.
  */
 
-public with sharing class QueueService {
+public with sharing class AAEX_QueueService {
 
     private static Queue queueInstance;
 
@@ -16,13 +16,11 @@ public with sharing class QueueService {
     }
 
     public static void enqueueJob(Queueable queueable, Integer delay) {
-        getQueueInstance();
-        queueInstance.enqueueJob(queueable, delay);
+        getQueueInstance().enqueueJob(queueable, delay);
     }
 
     public static Integer getAvailableQueueableJobs() {
-        getQueueInstance();
-        return queueInstance.getAvailableQueueableJobs();
+        return getQueueInstance().getAvailableQueueableJobs();
     }
 
     public interface Queue {

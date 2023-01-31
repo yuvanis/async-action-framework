@@ -3,11 +3,11 @@
  */
 
 @IsTest
-private class AsyncActionExecutorTest {
+private class AAEX_AsyncActionExecutorTest {
 
     public static final Integer LIMIT_OF_QUEUEABLE_JOBS = 2;
 
-    public with sharing class AsyncActionTestPositive extends AsyncAction {
+    public with sharing class AsyncActionTestPositive extends AAEX_AsyncAction {
 
         private String accountName;
 
@@ -26,7 +26,7 @@ private class AsyncActionExecutorTest {
         }
     }
 
-    public with sharing class AsyncActionTestNegative extends AsyncAction {
+    public with sharing class AsyncActionTestNegative extends AAEX_AsyncAction {
 
         public override void execute() {
             insert new Account();
@@ -37,7 +37,7 @@ private class AsyncActionExecutorTest {
         }
     }
 
-    public with sharing class TestQueue implements QueueService.Queue {
+    public with sharing class TestQueue implements AAEX_QueueService.Queue {
 
         private Integer availableJobsCount = LIMIT_OF_QUEUEABLE_JOBS;
 
@@ -53,28 +53,25 @@ private class AsyncActionExecutorTest {
 
     @IsTest
     static void testAsyncActionExecutor() {
-        QueueService.setMockQueue(new TestQueue());
+        AAEX_QueueService.setMockQueue(new TestQueue());
         Test.startTest();
         for (Integer i = 0; i < LIMIT_OF_QUEUEABLE_JOBS + 2; i++) {
-            AsyncActionExecutor.execute(new AsyncActionTestPositive('Account ' + i));
+            AAEX_AsyncActionExecutor.execute(new AsyncActionTestPositive('Account ' + i));
         }
         Test.stopTest();
         List<Account> accounts = [SELECT Name FROM Account];
-        for (Account acc : accounts) {
-            System.debug('Account: ' + acc.Name);
-        }
         System.assertEquals(LIMIT_OF_QUEUEABLE_JOBS + 2, accounts.size());
     }
 
     @IsTest
     static void testAsyncActionExecutorList() {
-        QueueService.setMockQueue(new TestQueue());
-        List<AsyncAction> asyncActions = new List<AsyncAction>();
+        AAEX_QueueService.setMockQueue(new TestQueue());
+        List<AAEX_AsyncAction> asyncActions = new List<AAEX_AsyncAction>();
         for (Integer i = 0; i < LIMIT_OF_QUEUEABLE_JOBS + 2; i++) {
             asyncActions.add(new AsyncActionTestPositive('Account ' + i));
         }
         Test.startTest();
-        AsyncActionExecutor.execute(asyncActions);
+        AAEX_AsyncActionExecutor.execute(asyncActions);
         Test.stopTest();
         List<Account> accounts = [SELECT Name FROM Account];
         System.assertEquals(LIMIT_OF_QUEUEABLE_JOBS + 2, accounts.size());
@@ -82,24 +79,24 @@ private class AsyncActionExecutorTest {
 
     @IsTest
     static void testFailedActions() {
-        QueueService.setMockQueue(new TestQueue());
-        List<AsyncAction> failedActions = new List<AsyncAction>();
+        AAEX_QueueService.setMockQueue(new TestQueue());
+        List<AAEX_AsyncAction> failedActions = new List<AAEX_AsyncAction>();
         for (Integer i = 0; i < 5; i++) {
             failedActions.add(new AsyncActionTestNegative().setInterval(1).setRetryCount(3));
         }
         Test.startTest();
-        AsyncActionExecutor.execute(failedActions);
+        AAEX_AsyncActionExecutor.execute(failedActions);
         Test.stopTest();
         System.assertEquals(4, failedActions.get(0).getExecutionCount());
     }
 
     @IsTest
     static void testInvalidInterval() {
-        QueueService.setMockQueue(new TestQueue());
+        AAEX_QueueService.setMockQueue(new TestQueue());
         String exceptionStr;
         Test.startTest();
         try {
-            AsyncActionExecutor.execute(new AsyncActionTestNegative().setInterval(15));
+            AAEX_AsyncActionExecutor.execute(new AsyncActionTestNegative().setInterval(15));
         } catch (Exception e) {
             exceptionStr = e.getMessage();
         }
@@ -109,9 +106,9 @@ private class AsyncActionExecutorTest {
 
     @IsTest
     static void testQueueDefaultEnqueueJob() {
-        AsyncAction action = new AsyncActionTestPositive('Test').setInterval(1).setRetryCount(3);
+        AAEX_AsyncAction action = new AsyncActionTestPositive('Test').setInterval(1).setRetryCount(3);
         Test.startTest();
-        new AsyncActionQueueExecutor(new List<AsyncAction>{action}).execute();
+        new AAEX_AsyncActionQueueExecutor(new List<AAEX_AsyncAction>{action}).execute();
         Test.stopTest();
         List<Account> accounts = [SELECT Name FROM Account];
         System.assertEquals(1, accounts.size());
@@ -119,9 +116,9 @@ private class AsyncActionExecutorTest {
 
     @IsTest
     static void testQueueDefaultQueueableJobs() {
-        AsyncAction action = new AsyncActionTestPositive('Test').setInterval(1).setRetryCount(3);
+        AAEX_AsyncAction action = new AsyncActionTestPositive('Test').setInterval(1).setRetryCount(3);
         Test.startTest();
-        AsyncActionExecutor.execute(action);
+        AAEX_AsyncActionExecutor.execute(action);
         Test.stopTest();
         List<Account> accounts = [SELECT Name FROM Account];
         System.assertEquals(1, accounts.size());

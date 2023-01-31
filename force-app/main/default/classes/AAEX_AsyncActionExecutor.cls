@@ -2,19 +2,19 @@
  * Created by Yury Nistratau on 19.01.2023.
  */
 
-public with sharing class AsyncActionExecutor {
+public with sharing class AAEX_AsyncActionExecutor {
 
-    public static void execute(AsyncAction action) {
-        execute(new List<AsyncAction>{action});
+    public static void execute(AAEX_AsyncAction action) {
+        execute(new List<AAEX_AsyncAction>{action});
     }
 
-    public static void execute(List<AsyncAction> actions) {
-        Logger.info('Start AsyncActionExecutor');
+    public static void execute(List<AAEX_AsyncAction> actions) {
+        Logger.info('Start AAEX_AsyncActionExecutor');
         List<Async_Action__e> asyncActionEvents = new List<Async_Action__e>();
-        for (AsyncAction action : actions) {
+        for (AAEX_AsyncAction action : actions) {
             action.setParentTransactionId(Logger.getTransactionId());
-            if (QueueService.getAvailableQueueableJobs() > 0) {
-                new AsyncActionQueueExecutor(new List<AsyncAction>{action}).execute();
+            if (AAEX_QueueService.getAvailableQueueableJobs() > 0) {
+                new AAEX_AsyncActionQueueExecutor(new List<AAEX_AsyncAction>{action}).execute();
             } else {
                 asyncActionEvents.add(new Async_Action__e(
                         Body__c = JSON.serialize(action),

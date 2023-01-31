@@ -2,7 +2,7 @@
  * Created by Yury Nistratau on 19.01.2023.
  */
 
-public abstract class AsyncAction {
+public abstract class AAEX_AsyncAction {
 
     private String parentTransactionId;
     private Integer retryLimit = 0;
@@ -18,14 +18,14 @@ public abstract class AsyncAction {
         return parentTransactionId;
     }
 
-    public AsyncAction setRetryCount(Integer retryCount) {
+    public AAEX_AsyncAction setRetryCount(Integer retryCount) {
         this.retryLimit = retryCount;
         return this;
     }
 
-    public AsyncAction setInterval(Integer retryIntervalMin) {
+    public AAEX_AsyncAction setInterval(Integer retryIntervalMin) {
         if (retryIntervalMin < 0 || retryIntervalMin > 10) {
-            throw new AsyncActionException('Invalid interval. Please enter an interval from 0 to 10.');
+            throw new AAEX_AsyncActionException('Invalid interval. Please enter an interval from 0 to 10.');
         } else {
             this.retryIntervalMin = retryIntervalMin;
         }
@@ -33,10 +33,9 @@ public abstract class AsyncAction {
     }
 
     public Integer getInterval() {
-        if (retryIntervalMin == 0) {
+        if (retryIntervalMin == 0 || lastExecutedDT == null) {
             return 0;
         } else {
-            if (lastExecutedDT == null) lastExecutedDT = System.now();
             Long executionDeltaMin = (System.now().getTime() - lastExecutedDT.getTime()) / (1000 * 60);
             return retryIntervalMin - executionDeltaMin.intValue();
         }
